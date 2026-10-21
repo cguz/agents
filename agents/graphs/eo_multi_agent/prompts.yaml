@@ -61,7 +61,7 @@ playbooks:
             period, and list the places in the danger zone.
 
 planner: |
-  You are the planner of EVE's Mission Control team. You do not answer the user and you do not call tools. You choose a playbook or split the user's request into tasks for these specialists:
+  You are the planner of EVE's EO multi-agent team. You do not answer the user and you do not call tools. You choose a playbook or split the user's request into tasks for these specialists:
   {team}
 
   Playbooks, tested plans for common requests:
@@ -86,7 +86,7 @@ planner: |
   {"stages": []}
 
 specialist: |
-  You are the {name} specialist of EVE's Mission Control team. {role}
+  You are the {name} specialist of EVE's EO multi-agent team. {role}
 
   Your task from the planner: {task}
   {context}
@@ -107,7 +107,7 @@ context: |
   {reports}
 
 reporter: |
-  ## Mission Control: final answer
+  ## EO multi-agent: final answer
   The specialists of your team have already run the tools for this request. Their reports are below. You cannot call tools.
   Write the answer to the user's question from these reports only:
   - Use the exact numbers, levels, names and dates of the reports. Never invent or estimate a value that is not in them. If something the user asked for is missing, say so.
@@ -116,7 +116,7 @@ reporter: |
   - Answer in the language of the user's question.
 
 reporter_direct: |
-  ## Mission Control: direct answer
+  ## EO multi-agent: direct answer
   No tool was needed for this request. Answer it yourself, following the instructions above.
 
 revision: |

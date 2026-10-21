@@ -1,4 +1,4 @@
-"""Mission Control: a planner, domain specialists and a verifier in one graph.
+"""EO multi-agent: a planner, domain specialists and a verifier in one graph.
 
 One ReAct agent with every tool works well with a large model. With a small
 one (the Mistral free tier offers only ministral) it loses track in long tool
@@ -75,7 +75,7 @@ def _merge_reports(old: Optional[Dict[str, str]], new: Optional[Dict[str, str]])
     return {**(old or {}), **new}
 
 
-class MissionState(AgentMessagesState):
+class MultiAgentState(AgentMessagesState):
     """Graph state. Only ``messages`` reaches the user; the rest is internal."""
 
     plan: Plan
@@ -136,15 +136,15 @@ def _for_model(messages: List[Any]) -> List[Any]:
     return messages
 
 
-class MissionControlAgent(AgentGraph):
+class EOMultiAgent(AgentGraph):
     """Planner, parallel domain specialists, reporter and rule-based verifier.
 
-    Select it in the backend with ``AGENT_GRAPH_TYPE=mission`` (or per request
-    with ``agent="mission"``). The team is declared in ``prompts.yaml``; the
+    Select it in the backend with ``AGENT_GRAPH_TYPE=eo_multi_agent`` (or per request
+    with ``agent="eo_multi_agent"``). The team is declared in ``prompts.yaml``; the
     EVE persona for the final answer is the ReAct graph's system prompt.
     """
 
-    name = "mission"
+    name = "eo_multi_agent"
 
     def __init__(self) -> None:
         super().__init__()
@@ -221,7 +221,7 @@ class MissionControlAgent(AgentGraph):
         def bound(model: Any, name: str) -> Any:
             return model.bind_tools(groups[name]) if model is not None else None
 
-        async def planner(state: MissionState):
+        async def planner(state: MultiAgentState):
             reset = {"stage": 0, "reports": None, "draft": "", "problems": [], "revisions": 0}
             question, _ = _turn(state["messages"])
             if not planned:
@@ -246,10 +246,10 @@ class MissionControlAgent(AgentGraph):
             if plan is None:
                 logger.info("No usable plan; the generalist runs the request")
                 plan = [[{"agent": GENERALIST, "task": "Answer the user's request in full."}]]
-            logger.info("Mission plan: %s", plan)
+            logger.info("Plan: %s", plan)
             return {**reset, "plan": plan}
 
-        def dispatch(state: MissionState):
+        def dispatch(state: MultiAgentState):
             plan, stage = state.get("plan") or [], state.get("stage", 0)
             if stage >= len(plan):
                 return "reporter"
@@ -303,10 +303,10 @@ class MissionControlAgent(AgentGraph):
                 report = f"(The {name} specialist failed: {exc})"
             return {"messages": public, "reports": {job["key"]: report or "(no report)"}}
 
-        def advance(state: MissionState):
+        def advance(state: MultiAgentState):
             return {"stage": state.get("stage", 0) + 1}
 
-        async def reporter(state: MissionState):
+        async def reporter(state: MultiAgentState):
             question, _ = _turn(state["messages"])
             reports = state.get("reports") or {}
             system = _clock() + "\n" + instruction + "\n\n"
@@ -332,7 +332,7 @@ class MissionControlAgent(AgentGraph):
                 draft = state.get("draft", "")
             return {"draft": draft, "problems": []}
 
-        def verifier(state: MissionState):
+        def verifier(state: MultiAgentState):
             question, turn = _turn(state["messages"])
             reports = state.get("reports") or {}
             evidence = "\n".join(
@@ -350,13 +350,13 @@ class MissionControlAgent(AgentGraph):
                 logger.warning("Publishing with unsupported numbers %s", problems)
             return {"draft": draft, "problems": []}
 
-        def after_verifier(state: MissionState):
+        def after_verifier(state: MultiAgentState):
             return "reporter" if state.get("problems") else "publish"
 
-        def publish(state: MissionState):
+        def publish(state: MultiAgentState):
             return {"messages": [AIMessage(content=state.get("draft") or FALLBACK_ANSWER)]}
 
-        builder = StateGraph(MissionState)
+        builder = StateGraph(MultiAgentState)
         for node_name, fn in (
             ("planner", planner), ("specialist", specialist), ("advance", advance),
             ("reporter", reporter), ("verifier", verifier), ("publish", publish),

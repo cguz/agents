@@ -1,4 +1,4 @@
-"""The Mission Control team: which specialist owns which tools.
+"""The EO multi-agent team: which specialist owns which tools.
 
 MCP tools reach the graph named ``<server>_<tool>``. A specialist owns every
 tool whose name starts with one of its servers; the longest matching server

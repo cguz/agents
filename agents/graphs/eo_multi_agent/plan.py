@@ -11,7 +11,7 @@ or writing its own stages::
                 [{"agent": "forest", "task": "..."}]]}
 
 Tasks in one stage run in parallel; a stage starts when the one before it has
-finished. Playbooks are tested recipes for known missions, declared in
+finished. Playbooks are tested recipes for known requests, declared in
 ``prompts.yaml``: choosing one is a much easier job for a small model than
 composing the stages, and the recipe gets the order right every time. Small
 models wrap the JSON in prose or code fences, so the parser looks for the

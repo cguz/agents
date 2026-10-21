@@ -1,4 +1,4 @@
-"""Checks for the Mission Control graph: team, plan, verifier and one full run."""
+"""Checks for the EO multi-agent graph: team, plan, verifier and one full run."""
 
 from __future__ import annotations
 
@@ -12,15 +12,15 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.tools import tool
 from langgraph.checkpoint.memory import InMemorySaver
 
-from agents.graphs.mission.graph import MissionControlAgent
-from agents.graphs.mission.plan import Playbook, parse_plan, usable_playbooks
-from agents.graphs.mission.team import (
+from agents.graphs.eo_multi_agent.graph import EOMultiAgent
+from agents.graphs.eo_multi_agent.plan import Playbook, parse_plan, usable_playbooks
+from agents.graphs.eo_multi_agent.team import (
     GENERALIST,
     Specialist,
     assign_tools,
     owner,
 )
-from agents.graphs.mission.verify import clean_links, unsupported_numbers
+from agents.graphs.eo_multi_agent.verify import clean_links, unsupported_numbers
 
 TEAM = [
     Specialist("fire", "", ("effis", "wildfire_flood")),
@@ -132,7 +132,7 @@ def cocoa_script(messages: List[Any]) -> AIMessage:
     """Plays every role of a two-stage cocoa audit, like use case C."""
     system = str(messages[0].content)
     seen = " ".join(str(m.content) for m in messages[1:])
-    if "planner of EVE's Mission Control" in system:
+    if "planner of EVE's EO multi-agent" in system:
         return AIMessage(content=json.dumps({"stages": [
             [{"agent": "forest", "task": "Check farm-01 for deforestation."},
              {"agent": "climate", "task": "Get the drought index of farm-01."}],
@@ -174,7 +174,7 @@ def drought(plot: str) -> str:
 
 
 def _run(script: Callable[[List[Any]], AIMessage], tools: list):
-    agent = MissionControlAgent()
+    agent = EOMultiAgent()
     graph = agent.compile(
         llm=ScriptedModel(script=script), tools=tools, checkpointer=InMemorySaver()
     )
@@ -215,7 +215,7 @@ def test_unusable_plan_falls_back_to_generalist() -> None:
     def script(messages: List[Any]) -> AIMessage:
         system = str(messages[0].content)
         seen = " ".join(str(m.content) for m in messages[1:])
-        if "planner of EVE's Mission Control" in system:
+        if "planner of EVE's EO multi-agent" in system:
             return AIMessage(content="Sure, I will ask the forest team.")
         if "You are the generalist specialist" in system:
             if "[TOOL_RESULTS]" not in seen:

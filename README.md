@@ -18,13 +18,13 @@ Use in the backend via `AGENT_GRAPH_TYPE`:
 
 - Short name `react` — ReAct loop with tools (default).
 - Short name `simple` — single LLM node, **no tools** (good for smoke tests).
-- Short name `mission` — Mission Control: planner, parallel domain specialists,
+- Short name `eo_multi_agent` — EO Multi-Agent: planner, parallel domain specialists,
   reporter and rule-based verifier (see below).
 - Fully qualified examples: `agents.graphs.react.graph.ReactAgent`,
   `agents.graphs.simple.graph.SimpleChatAgent`,
-  `agents.graphs.mission.graph.MissionControlAgent`.
+  `agents.graphs.eo_multi_agent.graph.EOMultiAgent`.
 
-The backend also accepts the graph per request (`"agent": "mission"` in the
+The backend also accepts the graph per request (`"agent": "eo_multi_agent"` in the
 generation request), which makes side-by-side comparisons easy.
 
 ## Layout
@@ -44,9 +44,9 @@ agents/
       __init__.py
       graph.py       # SimpleChatAgent
       prompts.yaml   # shorter default prompt
-    mission/
+    eo_multi_agent/
       __init__.py
-      graph.py       # MissionControlAgent
+      graph.py       # EOMultiAgent
       team.py        # which specialist owns which MCP tools
       plan.py        # planner reply -> stages; playbooks
       verify.py      # rule-based answer checks (numbers, artifact links)
@@ -80,11 +80,11 @@ Fault tolerance (requires ``langgraph>=1.2``) is configured inside the graph:
 The backend should pass ``fallback_llm`` (a bound or raw chat model) and may
 override timeout kwargs when calling ``compile``.
 
-## Mission Control (`mission`)
+## EO Multi-Agent (`eo_multi_agent`)
 
 One ReAct agent holding every tool works well with a large model. With a small
 one it loses track in long tool chains: it stops halfway, rewrites image links
-and states values no tool returned. Mission Control gives each model call one
+and states values no tool returned. EO Multi-Agent gives each model call one
 small job:
 
 ```
@@ -115,7 +115,7 @@ passes in, so MCP interceptors (artifact capture, latency) see every call.
 Retries and the fallback model wrap each model call, not the node, so a retry
 never repeats a specialist's tool calls.
 
-To add a specialist or a playbook, edit `agents/graphs/mission/prompts.yaml`;
+To add a specialist or a playbook, edit `agents/graphs/eo_multi_agent/prompts.yaml`;
 no code change is needed.
 
 ## Develop
