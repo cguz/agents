@@ -86,7 +86,8 @@ def test_parse_plan_expands_a_playbook_the_request_can_use() -> None:
 
 def test_unsupported_numbers_accepts_rounding_formats_and_percent() -> None:
     evidence = '{"area_ha": 18271.4, "likelihood": 0.493, "spi": -2.1}'
-    answer = "About 18,300 ha (18.271 ha), 49 % likely, SPI −2.1, in 5 farms since 2020."
+    evidence += ' {"longitude": -7.737252}'
+    answer = "About 18,300 ha (18.271 ha), 49 % likely, SPI −2.1, at 7.7373° W, in 5 farms since 2020."
     assert unsupported_numbers(answer, evidence) == []
     assert unsupported_numbers("Burned area: 25,000 ha.", evidence) == ["25,000"]
 

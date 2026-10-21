@@ -30,6 +30,7 @@ still see every call.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import secrets
 import string
@@ -335,7 +336,9 @@ class MissionControlAgent(AgentGraph):
             question, turn = _turn(state["messages"])
             reports = state.get("reports") or {}
             evidence = "\n".join(
-                [question, *reports.values(), *(_text(m) for m in turn if isinstance(m, ToolMessage))]
+                [question, *reports.values()]
+                + [_text(m) for m in turn if isinstance(m, ToolMessage)]
+                + [json.dumps(c.get("args", {})) for m in turn for c in getattr(m, "tool_calls", None) or []]
             )
             draft = clean_links(state.get("draft", ""), evidence)
             problems = unsupported_numbers(draft, evidence) if reports else []

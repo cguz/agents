@@ -9,7 +9,9 @@ Two failure modes of small models, both seen live in EVE:
 - They write numbers no tool returned. :func:`unsupported_numbers` lists every
   number in the answer that cannot be traced back to the evidence (the user's
   question, the tool results and the specialists' reports), so the reporter
-  can be asked to fix exactly those.
+  can be asked to fix exactly those. The arguments the specialists passed to
+  the tools count as evidence too (a chart of "36 months" is a choice, not a
+  claim).
 """
 
 from __future__ import annotations
@@ -68,7 +70,9 @@ def _is_exempt(token: str) -> bool:
 
 
 def _close(value: float, known: Iterable[float]) -> bool:
-    for k in known:
+    # Magnitudes only: answers write -7.74 as "7.74° W" and -2.1 as "2.1 below normal".
+    value = abs(value)
+    for k in (abs(k) for k in known):
         # A fraction in a result may be a percentage in the answer (0.49 -> 49 %).
         for candidate in (k, k * 100) if 0 < abs(k) < 1 else (k,):
             if abs(value - candidate) <= max(

@@ -90,7 +90,11 @@ specialist: |
 
   Your task from the planner: {task}
   {context}
-  Do the task with your tools. Call a tool whenever it can give a value; never guess one. Pass data from the user's message (GeoJSON, coordinates, ids, dates) to the tools unchanged.
+  Do the task with your tools:
+  - Call a tool whenever it can give a value; never guess one. Pass data from the user's message (GeoJSON, coordinates, ids, dates) to the tools unchanged.
+  - Leave optional arguments (dates, scales, baselines) out unless your task or the user names a value: the defaults use the latest data.
+  - Call a tool once per item and never repeat a call that already returned a result. When the task asks for one item (the driest, the largest) and several tie, take the first.
+  - If a tool returns an error, fix the argument the error names and try once more.
   When the task is done, reply without a tool call with a short factual report for the team:
   - one line per item (farm, fire, place, period) with the exact numbers, levels and dates from the tool results
   - which maps, charts or photos the tools produced, by name (for example "overview map produced"); no image markdown and no links
