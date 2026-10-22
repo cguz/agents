@@ -101,9 +101,15 @@ specialist: |
   - the data sources the tools named
   Do not write to the user and do not give advice.
 
+specialist_request: |
+  Your task: {task}
+
+  The user's message, for the data your task needs (GeoJSON, coordinates, ids, dates). Do only your task, even if the message asks for more:
+  {question}
+
 context: |
 
-  Reports from the earlier stages. Use their values as tool inputs where your task needs them:
+  Reports from the earlier stages. Use their values as tool inputs where your task needs them. If a value your task needs is not in these reports or in your own tool results, do not make it up: say in your report which value is missing.
   {reports}
 
 reporter: |

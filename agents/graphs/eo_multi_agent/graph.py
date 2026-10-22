@@ -279,7 +279,10 @@ class EOMultiAgent(AgentGraph):
                 self.prompts["specialist"], name=name, role=roles.get(name, ""),
                 task=job["task"], context=context,
             )
-            private: List[Any] = [SystemMessage(content=system), HumanMessage(content=job["question"])]
+            # The task first, the user's message as data: given the whole request, a specialist that holds
+            # only some of the tools may refuse it instead of doing its part (seen with EVE-Instruct).
+            request = _fill(self.prompts["specialist_request"], task=job["task"], question=job["question"])
+            private: List[Any] = [SystemMessage(content=system), HumanMessage(content=request)]
             public: List[Any] = []
             primary, fallback = bound(llm, name), bound(fallback_llm, name)
             report = ""
